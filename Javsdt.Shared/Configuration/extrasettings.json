@@ -1,0 +1,64 @@
+{
+  "Standard": {
+    "Birthmark": {
+      "IgnoredWords": [ "1080p", "caribbean", "carib", "1pondo", "1pon", "fhd", "all", "tokyo-hot", "tokyohot", "3xplanet", "full" ],
+      "SubtitleWords": [ "-C", "_C", "中字", "中文字幕", "字幕", "㊥" ],
+      "DivulgedWords": [ "流出" ],
+      "CrackedWords": [ "-UC" ],
+      "InterfereSubtitleWords": [ "-CD", "-CARIB" ],
+      "InterfereDivulgedWords": [],
+      "InterfereCrackedWords": [],
+      "AttendantFolders": [ ".actors", "extrafanart" ],
+      "ExcludeFolders": [ "归类完成" ]
+    },
+    "Element": {
+      "ReserveTitleEndActors": false,
+      "TitleLimit": 50,
+      "SubtitleStamp": "㊥",
+      "DivulgedStamp": "无码流出",
+      "CrackedStamp": "AI破解",
+      "DatePattern": "yyyy-MM-dd"
+    },
+    "Video": {
+      "NeedRename": true,
+      "NameVideoFormula": [ "Car" ],
+      "VideoTypes": [ "mp4", "mkv", "avi", "wmv", "iso", "rmvb", "flv", "ts" ]
+    },
+    "Subtitle": {
+      "NeedRename": true,
+      "SkipCollectSubtitleIfExist": true
+    },
+    "Classify": {
+      "ClassifyRootDir": "",
+      "ClassifyOperationType": 1,
+      "ClassifyRelativePathFormula": [ "CarPref", "\\", "Car", "【", "Actors", "】" ]
+    },
+    "Nfo": {
+      "Need": true,
+      "NeedZhPlot": true,
+      "NeedJavLibraryReview": true,
+      "NfoTitleFormula": [ "Car", " ", "ZhTitle" ],
+      "ExtraCollectProperties": []
+    },
+    "Fanart": {
+      "Need": true,
+      "NameFanartFormula": [ "NameWithoutExt", "-fanart.jpg" ]
+    },
+    "Poster": {
+      "Need": true,
+      "NamePosterFormula": [ "NameWithoutExt", "-poster.jpg" ],
+      "NeedSubtitleWatermark": false,
+      "NeedDivulgeWatermark": false,
+      "NeedLocateFacial": false
+    },
+    "Emby": {
+      "Server": "http://localhost:8096",
+      "ApiId": "b55d950becc74bbebbf4698d995db826",
+      "OverwritePreviousHeadSculpture": false
+    },
+    "Kodi": {
+      "OnlyOneWhenCDs": false,
+      "NeedHeadSculpture": false
+    }
+  }
+}
