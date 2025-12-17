@@ -1,10 +1,11 @@
-﻿using Javsdt.Domain.Repositorys;
+﻿using HappreeTool.Configurations;
+using Javsdt.Application.Interfaces;
+using Javsdt.Domain.Repositorys;
+using Javsdt.Infrastructure.Clients;
 using Javsdt.Infrastructure.Persistence;
 using Javsdt.Infrastructure.Repositorys;
-using Microsoft.EntityFrameworkCore;
-using Javsdt.Infrastructure.Clients;
-using Javsdt.Application.Interfaces;
 using Javsdt.Shared.Constants;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,6 +15,9 @@ namespace Javsdt.Infrastructure.Extensions
     {
         public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            IConfiguration moduleConfiguration = ConfigurationLoader.LoadModuleConfiguration(
+                AppContext.BaseDirectory, "Infrastructure", configuration);
+
             //数据库
             services.AddDbContext<JavsdtContext>((provider, options) =>
             {

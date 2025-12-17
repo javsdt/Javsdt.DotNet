@@ -135,5 +135,10 @@ namespace Javsdt.Application.Dtos
         /// 原文件夹名
         /// </summary>
         public string OriginFolder => Path.GetFileName(_jav.OriginDir) ?? throw new GetFileNameException(_jav.OriginDir);
+
+        /// <summary>
+        /// 车牌首字母
+        /// </summary>
+        public string FirstLetter => CarPref[0].ToString();
     }
 }

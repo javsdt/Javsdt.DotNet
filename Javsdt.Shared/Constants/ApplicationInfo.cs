@@ -14,7 +14,7 @@ namespace MovieDb.Shared.Constants
         private static string GetAppSettingsJsonPath()
         {
             string projectRoot = Regex.Match(CurrentDirectory, @"^.*?Javsdt.DotNet").Value;
-            return Path.Combine(projectRoot, "Javsdt.Application", "appsettings.Development.json");
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configuration/appsettings.Development.json");
         }
 
     }

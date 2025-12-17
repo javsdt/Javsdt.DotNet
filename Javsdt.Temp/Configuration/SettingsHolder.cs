@@ -1,7 +1,6 @@
-﻿using Javsdt.Application.Dtos;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 
-namespace Javsdt.Application.Configuration
+namespace Javsdt.Shared.Configuration
 {
     public static class SettingsHolder
     {
@@ -22,7 +21,7 @@ namespace Javsdt.Application.Configuration
         {
             List<string> paths = Standard.Classify.ClassifyRelativePathFormula;
             int index = paths.LastIndexOf("\\");
-            return paths[(index + 1)..].Contains(nameof(AssembleDto.Car));
+            return paths[(index + 1)..].Contains("Car");
         }
     }
 }

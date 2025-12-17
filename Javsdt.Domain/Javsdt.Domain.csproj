@@ -1,14 +1,39 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <ItemGroup>
-	<ProjectReference Include="..\..\HappreeTool\HappreeTool.csproj" />
-    <ProjectReference Include="..\Javsdt.Shared\Javsdt.Shared.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\HappreeTool\HappreeTool.csproj" />
+		<ProjectReference Include="..\Javsdt.Shared\Javsdt.Shared.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="appsettings.Domain.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<TargetPath>appsettings\%(FileName)%(Extension)</TargetPath>
+		</None>
+		<None Update="appsettings.Domain.Development.json">
+			<DependentUpon>appsettings.Domain.json</DependentUpon>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<TargetPath>appsettings\%(FileName)%(Extension)</TargetPath>
+		</None>
+		<None Update="appsettings.Domain.Production.json">
+			<DependentUpon>appsettings.Domain.json</DependentUpon>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<TargetPath>appsettings\%(FileName)%(Extension)</TargetPath>
+		</None>
+	</ItemGroup>
+
+	<!--删除不属于当前环境的配置文件-->
+	<Target Name="RemoveUnusedConfigFiles" AfterTargets="Build">
+		<ItemGroup>
+			<FilesToDelete Include="bin\$(Configuration)\**\appsettings.*.json" Exclude="bin\$(Configuration)\**\appsettings.Domain.$(EnvironmentName).json;bin\$(Configuration)\**\appsettings.Domain.json" />
+		</ItemGroup>
+		<Delete Files="@(FilesToDelete)" />
+	</Target>
 
 </Project>

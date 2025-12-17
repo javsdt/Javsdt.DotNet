@@ -1,27 +1,52 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.8" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="8.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.9" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.9">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.9" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.9" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.9" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.9" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Javsdt.Application\Javsdt.Application.csproj" />
-    <ProjectReference Include="..\Javsdt.Domain\Javsdt.Domain.csproj" />
-    <ProjectReference Include="..\Javsdt.Shared\Javsdt.Shared.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Javsdt.Application\Javsdt.Application.csproj" />
+		<ProjectReference Include="..\Javsdt.Domain\Javsdt.Domain.csproj" />
+		<ProjectReference Include="..\Javsdt.Shared\Javsdt.Shared.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="appsettings.Infrastructure.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<TargetPath>appsettings\%(FileName)%(Extension)</TargetPath>
+		</None>
+		<None Update="appsettings.Infrastructure.Development.json">
+			<DependentUpon>appsettings.Infrastructure.json</DependentUpon>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<TargetPath>appsettings\%(FileName)%(Extension)</TargetPath>
+		</None>
+		<None Update="appsettings.Infrastructure.Production.json">
+			<DependentUpon>appsettings.Infrastructure.json</DependentUpon>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<TargetPath>appsettings\%(FileName)%(Extension)</TargetPath>
+		</None>
+	</ItemGroup>
+
+	<!--删除不属于当前环境的配置文件-->
+	<Target Name="RemoveUnusedConfigFiles" AfterTargets="Build">
+		<ItemGroup>
+			<FilesToDelete Include="bin\$(Configuration)\**\appsettings.*.json" Exclude="bin\$(Configuration)\**\appsettings.Infrastructure.$(EnvironmentName).json;bin\$(Configuration)\**\appsettings.Infrastructure.json" />
+		</ItemGroup>
+		<Delete Files="@(FilesToDelete)" />
+	</Target>
 
 </Project>

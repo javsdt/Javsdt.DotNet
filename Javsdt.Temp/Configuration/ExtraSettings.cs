@@ -2,7 +2,7 @@
 using Javsdt.Shared.Enums;
 using System.Text.Json.Serialization;
 
-namespace Javsdt.Application.Configuration
+namespace Javsdt.Shared.Configuration
 {
     public class StandardSettings
     {

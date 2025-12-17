@@ -156,7 +156,7 @@ namespace Javsdt.Application.Helpers
                 string targetPath = Path.Combine(targetDir, jav.NameWithExt);
                 string parentDir = Path.GetDirectoryName(targetPath)
                     ?? throw new GetDirectoryException(targetPath);  // 目标文件夹路径的父目录
-                _logger.LogInformation("【归类目录】end_当前jav不在独立文件夹中，准备归类至{targetPath}", targetPath);
+                _logger.LogInformation("【归类目录】当前jav不在独立文件夹中，准备归类至{targetPath}", targetPath);
                 try
                 {
                     FileUtils.ConfirmDirExist(parentDir);
