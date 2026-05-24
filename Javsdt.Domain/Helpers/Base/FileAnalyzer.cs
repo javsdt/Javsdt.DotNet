@@ -53,7 +53,7 @@ namespace Javsdt.Domain.Helpers.Base
             if (jav.HasSubtitle) return;
 
             // 去除 '-CD' 和 '-CARIB'对 '-C'判断中字的影响
-            string nameWithoutExt = StringUtils.ReplaceByArray(jav.NameWithoutExt, 中字干扰项);
+            string nameWithoutExt = StringUtils.ReplaceByArray(jav.NameWithoutExt.ToUpper(), 中字干扰项);
             // 如果原文件名包含“-c、-C、中字”这些字符
             foreach (var word in 是否中字即文件名包含)
             {
@@ -83,7 +83,7 @@ namespace Javsdt.Domain.Helpers.Base
         {
             if (jav.IsDivulged) return;
 
-            string nameWithoutExt = StringUtils.ReplaceByArray(jav.NameWithoutExt, 流出干扰项);
+            string nameWithoutExt = StringUtils.ReplaceByArray(jav.NameWithoutExt.ToUpper(), 流出干扰项);
             // 如果原文件名包含“无码流出”这些字符
             foreach (var word in 是否流出即文件名包含)
             {
@@ -114,7 +114,7 @@ namespace Javsdt.Domain.Helpers.Base
             if (jav.IsCracked) return;
 
 
-            string nameWithoutExt = StringUtils.ReplaceByArray(jav.NameWithoutExt, 破解干扰项);
+            string nameWithoutExt = StringUtils.ReplaceByArray(jav.NameWithoutExt.ToUpper(), 破解干扰项);
             // 如果原文件名包含“无码流出”这些字符
             foreach (var word in 是否破解即文件名包含)
             {

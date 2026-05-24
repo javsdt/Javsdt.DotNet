@@ -43,16 +43,16 @@ namespace Javsdt.Domain.Configuration
         public static void InitializeStandard()
         {
             IConfiguration configuration = ConfigurationLoader.LoadModuleConfiguration(
-                AppContext.BaseDirectory, nameof(SettingsHolder));
+                AppContext.BaseDirectory, nameof(Domain));
             StandardSettings settings = configuration.GetSection("Standard").Get<StandardSettings>()!;
 
-            NeedSeparateFolder = JudgeNeedSeparateFolder();
             重命名视频文件的公式 = settings.视频.重命名视频文件的公式;
             归类的标准 = settings.归类.归类的标准;
-            Nfo的title的公式 = settings.Nfo.title的公式;
-            Fanart的公式 = settings.Fanart.fanart的公式;
-            Poster的公式 = settings.Poster.Poster的公式;
+            Nfo的title的公式 = settings.Nfo.Title的公式;
+            Fanart的公式 = settings.Fanart.Fanart的公式;
+            Poster的公式 = settings.Fanart.Poster的公式;
             额外增加以下元素到特征中 = settings.Nfo.额外增加以下元素到特征中;
+            NeedSeparateFolder = JudgeNeedSeparateFolder();
         }
 
         /// <summary>

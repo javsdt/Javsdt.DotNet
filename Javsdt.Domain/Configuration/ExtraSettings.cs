@@ -13,7 +13,6 @@ namespace Javsdt.Domain.Configuration
         public ClassifySettings 归类 { get; set; } = new ClassifySettings();
         public NfoSettings Nfo { get; set; } = new NfoSettings();
         public FanartSettings Fanart { get; set; } = new FanartSettings();
-        public PosterSettings Poster { get; set; } = new PosterSettings();
         public EmbySettings Emby { get; set; } = new EmbySettings();
         public KodiSettings Kodi { get; set; } = new KodiSettings();
     }
@@ -27,26 +26,32 @@ namespace Javsdt.Domain.Configuration
         /// 无视多余的字母数字 IgnoredWords
         /// </summary>
         public List<string> 无视多余的字母数字 { get; set; } = new List<string>();
+
         /// <summary>
         /// 
         /// </summary>
         public List<string> 是否中字即文件名包含 { get; set; } = new List<string>();
+
         /// <summary>
         /// 是否流出即文件名包含 DivulgedWords
         /// </summary>
         public List<string> 是否流出即文件名包含 { get; set; } = new List<string>();
+
         /// <summary>
         /// 是否破解即文件名包含 CrackedWords
         /// </summary>
         public List<string> 是否破解即文件名包含 { get; set; } = new List<string>();
+
         /// <summary>
         /// 中字干扰项 InterfereSubtitleWords
         /// </summary>
         public List<string> 中字干扰项 { get; set; } = new List<string>();
+
         /// <summary>
         /// 流出干扰项 InterfereDivulgedWords
         /// </summary>
         public List<string> 流出干扰项 { get; set; } = new List<string>();
+
         /// <summary>
         /// 破解干扰项 InterfereCrackedWords
         /// </summary>
@@ -98,7 +103,11 @@ namespace Javsdt.Domain.Configuration
         /// 重命名视频文件的公式 NameVideoFormula
         /// </summary>
         public List<string> 重命名视频文件的公式 { get; set; } = new List<string>();
-        public List<string> VideoTypes { get; set; } = new List<string>();
+
+        /// <summary>
+        /// 扫描视频文件类型 VideoTypes
+        /// </summary>
+        public List<string> 扫描文件类型 { get; set; } = new List<string>();
     }
 
     public class SubtitleSettings
@@ -153,8 +162,8 @@ namespace Javsdt.Domain.Configuration
         /// <summary>
         /// title的公式 NfoTitleFormula
         /// </summary>
-        public List<string> title的公式 { get; set; } = new List<string>();
-        
+        public List<string> Title的公式 { get; set; } = new List<string>();
+
         /// <summary>
         /// 额外增加以下元素到特征中 ExtraCollectProperties
         /// </summary>
@@ -163,24 +172,27 @@ namespace Javsdt.Domain.Configuration
 
     public class FanartSettings
     {
-        public bool 是否需要 { get; set; }
+        public bool 是否需要fanart { get; set; }
 
         /// <summary>
         /// fanart的公式 NameFanartFormula
         /// </summary>
-        public List<string> fanart的公式 { get; set; } = new List<string>();
-    }
+        public List<string> Fanart的公式 { get; set; } = new List<string>();
 
-    public class PosterSettings
-    {
-        public bool 是否需要 { get; set; }
+        public bool 是否需要poster { get; set; }
+
         /// <summary>
         /// poster的公式 NamePosterFormula
         /// </summary>
         public List<string> Poster的公式 { get; set; } = new List<string>();
+
         public bool NeedSubtitleWatermark { get; set; }
         public bool NeedDivulgeWatermark { get; set; }
         public bool NeedLocateFacial { get; set; }
+    }
+
+    public class PosterSettings
+    {
     }
 
     public class EmbySettings

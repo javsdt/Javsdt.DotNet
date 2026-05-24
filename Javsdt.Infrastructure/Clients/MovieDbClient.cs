@@ -8,18 +8,18 @@ using System.Text.Json;
 namespace Javsdt.Infrastructure.Clients
 {
     public class MovieDbClient(ILogger<MovieDbClient> logger,
-                               IHttpClientFactory _httpClientFactory,
+                               IHttpClientFactory httpClientFactory,
                                IOptions<AvpiSettings> options)
     {
-        private readonly string baseUrl = options.Value.BaseUrl.TrimEnd('/');
+        private readonly string _baseUrl = options.Value.BaseUrl.TrimEnd('/');
 
-        public string BuildMovieDetailUrl(string movieId) => $"{baseUrl}/movies/{movieId}";
+        private string BuildMovieDetailUrl(string movieId) => $"{_baseUrl}/movies/{movieId}";
 
-        public string BuildMoviePosterUrl(string movieId) => $"{baseUrl}/movies/{movieId}/poster";
+        private string BuildMoviePosterUrl(string movieId) => $"{_baseUrl}/movies/{movieId}/poster";
 
-        public string BuildMovieFanartUrl(string movieId) => $"{baseUrl}/movies/{movieId}/fanart";
+        private string BuildMovieFanartUrl(string movieId) => $"{_baseUrl}/movies/{movieId}/fanart";
 
-        public string BuildMovieSearchUrl(string code) => $"{baseUrl}/movies?code={Uri.EscapeDataString(code)}";
+        private string BuildMovieSearchUrl(string code) => $"{_baseUrl}/movies?code={Uri.EscapeDataString(code)}";
 
         /// <summary>
         /// 根据code查影片
@@ -29,11 +29,11 @@ namespace Javsdt.Infrastructure.Clients
         public async Task<List<Movie>> GetDetail(string code)
         {
             string getMovieByCodeUrl = BuildMovieSearchUrl(code);
-            HttpResponseMessage response = await _httpClientFactory.CreateClient().GetAsync(getMovieByCodeUrl);
+            HttpResponseMessage response = await httpClientFactory.CreateClient().GetAsync(getMovieByCodeUrl);
             response.EnsureSuccessStatusCode();
             string jsonResponse = await response.Content.ReadAsStringAsync();
 
-            ApiResponseMessage<List<Movie>> message = JsonSerializer.Deserialize<ApiResponseMessage<List<Movie>>>(jsonResponse)!;
+            var message = JsonSerializer.Deserialize<ApiResponseMessage<List<Movie>>>(jsonResponse)!;
             return message.Data!;
         }
 
@@ -47,7 +47,7 @@ namespace Javsdt.Infrastructure.Clients
             string url = BuildMovieFanartUrl(id);
             logger.LogInformation("准备从MovieDb服务【{url}】获取fanart的文件资源bytes", url);
 
-            HttpResponseMessage response = await _httpClientFactory.CreateClient().GetAsync(url);
+            HttpResponseMessage response = await httpClientFactory.CreateClient().GetAsync(url);
             //if (response.StatusCode == HttpStatusCode.NotFound)
             //{
             //    return null;
@@ -67,7 +67,7 @@ namespace Javsdt.Infrastructure.Clients
             string url = BuildMoviePosterUrl(id);
             logger.LogInformation("准备从MovieDb服务【{url}】获取poster的文件资源bytes", url);
 
-            HttpResponseMessage response = await _httpClientFactory.CreateClient().GetAsync(url);
+            HttpResponseMessage response = await httpClientFactory.CreateClient().GetAsync(url);
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadAsByteArrayAsync();

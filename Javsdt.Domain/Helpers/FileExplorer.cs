@@ -24,6 +24,7 @@ namespace Javsdt.Domain.Helpers
         private readonly List<string> 排除文件夹 = options.Value.Birthmark.排除文件夹们;
         private readonly List<string> 无视多余的字母数字 = options.Value.Birthmark.无视多余的字母数字;
         private readonly List<string> 随从文件夹们 = options.Value.Birthmark.随从文件夹们;
+        private readonly List<string> _扫描视频文件类型 = options.Value.视频.扫描文件类型;
 
         /// <summary>
         /// 收集指定目录下的所有jav视频和字幕
@@ -52,7 +53,8 @@ namespace Javsdt.Domain.Helpers
                 string[] subDirs = Directory.GetDirectories(currentDir);
 
                 //1 收集【视频】
-                List<Jav> javs = CollectJavs(files.Where(VideoUtils.IsVideoFile));
+                List<Jav> javs = CollectJavs(files.Where(one=>VideoUtils.IsMatchExtension(one, _扫描视频文件类型)));
+                logger.LogInformation("【收集jav】检索初步完成...当前目录共有jav【{count}】个", javs.Count);
 
                 //2 初步检查当前文件夹是否独立文件夹
                 IsCurrentFoldeSeparate(subDirs, javs);

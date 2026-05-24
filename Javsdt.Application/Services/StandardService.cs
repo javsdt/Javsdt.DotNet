@@ -174,7 +174,7 @@ namespace Javsdt.Application.Services
         private readonly ClassifyOperationType 归类方式 = options.Value.归类.归类方式;
         private readonly bool 是否需要独立文件夹 = options.Value.归类.JudgeNeedSeparateFolder();
         private readonly bool 是否需要nfo = options.Value.Nfo.是否需要;
-        private readonly bool 是否需要fanart = options.Value.Fanart.是否需要;
-        private readonly bool 是否需要poster = options.Value.Poster.是否需要;
+        private readonly bool 是否需要fanart = options.Value.Fanart.是否需要fanart;
+        private readonly bool 是否需要poster = options.Value.Fanart.是否需要poster;
     }
 }

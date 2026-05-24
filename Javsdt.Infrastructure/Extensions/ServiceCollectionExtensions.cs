@@ -3,6 +3,7 @@ using HappreeTool.Surfers;
 using Javsdt.Application.Interfaces;
 using Javsdt.Domain.Repositorys;
 using Javsdt.Infrastructure.Clients;
+using Javsdt.Infrastructure.Configurations;
 using Javsdt.Infrastructure.Persistence;
 using Javsdt.Infrastructure.Repositorys;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,7 @@ namespace Javsdt.Infrastructure.Extensions
         {
             IConfiguration moduleConfiguration = ConfigurationLoader.LoadModuleConfiguration(
                 AppContext.BaseDirectory, "Infrastructure");
+            services.Configure<AvpiSettings>(moduleConfiguration.GetSection("ThirdPartys:Avpi"));
 
             //数据库
             services.AddDbContext<JavsdtContext>((provider, options) =>

@@ -44,7 +44,8 @@ namespace Javsdt.Infrastructure.Repositorys
         public void UpdateInDifferentFoldersStatus()
         {
             List<Jav> javsToUpdate = _records
-                .Where(record => _records.Any(another => another.Car == record.Car && another.OriginDir != record.OriginDir))
+                .Where(record => _records.Any(another => another.Car == record.Car 
+                                                         && another.OriginDir != record.OriginDir))
                 .ToList();
 
             foreach (Jav jav in javsToUpdate)

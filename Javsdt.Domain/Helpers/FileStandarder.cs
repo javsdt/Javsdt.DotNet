@@ -46,7 +46,7 @@ namespace Javsdt.Domain.Helpers
             else if (归类方式 == ClassifyOperationType.ChooseDirCombineAlreadyClassify)
             {
                 classifyRootDir = Path.Combine(choosedDir, ProcessConstant.ALREADY_CLASSIFY_DIR);
-                _logger.LogInformation("【检查归类根目录】end_用户希望归类在【所选文件夹/归类完成：{classifyRootDir}】", classifyRootDir);
+                _logger.LogInformation("【检查归类根目录】end_用户希望归类在【所选文件夹/归类完成】: {classifyRootDir}】", classifyRootDir);
             }
             else if (归类方式 == ClassifyOperationType.OnlyChooseDir)
             {
