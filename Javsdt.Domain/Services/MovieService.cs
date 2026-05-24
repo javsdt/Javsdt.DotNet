@@ -17,7 +17,7 @@ namespace Javsdt.Domain.Services
             File.WriteAllBytes(posterPath, posterBytes);
         }
 
-        public Movie? GetDetail(string car)
+        public List<Movie> GetDetail(string car)
         {
             return repository.GetDetail(car);
         }

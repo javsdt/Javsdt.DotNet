@@ -1,7 +1,4 @@
-﻿using HappreeTool.Documents;
-using Javsdt.Shared.Configuration;
-using Javsdt.Application.Dtos;
-using Javsdt.Application.Helpers.Base;
+﻿using Javsdt.Domain.Configuration;
 using Javsdt.Domain.Entitys;
 using Javsdt.Domain.Exceptions;
 using Javsdt.Domain.Services;
@@ -10,12 +7,22 @@ using Javsdt.Shared.Enums;
 using Microsoft.Extensions.Logging;
 using System.Text;
 using System.Xml.Serialization;
+using Javsdt.Domain.Helpers.Base;
+using Javsdt.Domain.Dtos;
+using HappreeTool.Utils.Documents;
+using Microsoft.Extensions.Options;
 
-namespace Javsdt.Application.Helpers
+namespace Javsdt.Domain.Helpers
 {
     public class FileStandarder(ILogger<FileStandarder> _logger,
-        JavService _javService, MovieService _movieService)
+                                JavService _javService,
+                                MovieService _movieService,
+                                IOptions<StandardSettings> options)
     {
+
+        private readonly ClassifyOperationType 归类方式 = options.Value.归类.归类方式;
+        private readonly string 用户设置归类根目录 = options.Value.归类.归类根目录;
+        private readonly bool 是否对多cd只收集一份图片和nfo = options.Value.Kodi.是否对多cd只收集一份图片和nfo;
 
         /// <summary>
         /// 路径：归类的目标根目录
@@ -32,25 +39,24 @@ namespace Javsdt.Application.Helpers
         {
             _logger.LogInformation("【检查归类根目录】begin");
 
-            ClassifyOperationType operationType = SettingsHolder.Standard.Classify.ClassifyOperationType;
-            if (operationType == ClassifyOperationType.NoOperation)
+            if (归类方式 == ClassifyOperationType.NoOperation)
             {
                 _logger.LogInformation("【检查归类根目录】end_用户不希望变动目录结构");
             }
-            else if (operationType == ClassifyOperationType.ChooseDirCombineAlreadyClassify)
+            else if (归类方式 == ClassifyOperationType.ChooseDirCombineAlreadyClassify)
             {
                 classifyRootDir = Path.Combine(choosedDir, ProcessConstant.ALREADY_CLASSIFY_DIR);
                 _logger.LogInformation("【检查归类根目录】end_用户希望归类在【所选文件夹/归类完成：{classifyRootDir}】", classifyRootDir);
             }
-            else if (operationType == ClassifyOperationType.OnlyChooseDir)
+            else if (归类方式 == ClassifyOperationType.OnlyChooseDir)
             {
                 // 用户希望归类在“所选文件夹”，则归类到所选文件夹下的【归类完成】
                 classifyRootDir = choosedDir;
                 _logger.LogInformation("【检查归类根目录】end_用户希望就归类在【所选文件夹：{classifyDir}】", classifyRootDir);
             }
-            else if (operationType == ClassifyOperationType.Custom)
+            else if (归类方式 == ClassifyOperationType.Custom)
             {
-                classifyRootDir = SettingsHolder.Standard.Classify.ClassifyRootDir;
+                classifyRootDir = 用户设置归类根目录;
                 _logger.LogInformation("【检查归类根目录】检查用户自定义的【{dir}】是否合理...", classifyRootDir);
                 // 用户自定义了一个路径
                 if (Path.GetPathRoot(classifyRootDir) != Path.GetPathRoot(choosedDir))
@@ -266,13 +272,12 @@ namespace Javsdt.Application.Helpers
             _logger.LogInformation("【保存nfo】begin");
 
             // nfo路径，如果是为kodi准备的nfo，不需要多cd
-            string nfoFileName = SettingsHolder.Standard.Kodi.OnlyOneWhenCDs
-                ? $"{jav.NameWithoutExt.Replace(jav.EditionCDn, "")}.nfo"
-                : $"{jav.NameWithoutExt}.nfo";
+            string nfoFileName = 是否对多cd只收集一份图片和nfo ? $"{jav.NameWithoutExt.Replace(jav.EditionCDn, "")}.nfo"
+                                                               : $"{jav.NameWithoutExt}.nfo";
             string pathNfo = Path.Combine(jav.Dir, nfoFileName);
             _logger.LogInformation("【保存nfo】目标nfo路径【{path}】", pathNfo);
 
-            MovieNfo movieNfo = new MovieNfo(movie, dto);
+            MovieNfo movieNfo = new MovieNfo(movie, dto, options.Value);
             XmlSerializer serializer = new XmlSerializer(typeof(MovieNfo));
             using (StringWriter textWriter = new StringWriter())
             {

@@ -10,11 +10,21 @@ namespace Javsdt.Domain.Services
             _repository.Clear();
         }
 
-        public int GetTotalCount()
+        /// <summary>
+        /// 获取所有要处理的jav的数量
+        /// </summary>
+        /// <returns></returns>
+        public int CountAllToHandle()
         {
-            return _repository.GetTotalCount();
+            return _repository.CountAll();
         }
 
+        /// <summary>
+        /// 分页获取要处理的所有jav
+        /// </summary>
+        /// <param name="skipNum">跳过数量</param>
+        /// <param name="batchSize">第几页</param>
+        /// <returns></returns>
         public List<Jav> GetPagedResultsAsync(int skipNum, int batchSize)
         {
             return _repository.GetPagedResultsAsync(skipNum, batchSize);

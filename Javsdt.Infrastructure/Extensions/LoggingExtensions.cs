@@ -1,43 +1,28 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using HappreeTool.Configurations;
+using HappreeTool.Utils.CommonUtils;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
-using Serilog.Filters;
 
 namespace Javsdt.Infrastructure.Extensions
 {
     public static class LoggingExtensions
     {
-        public static void UseSerilogLogging(this IServiceCollection services, IConfiguration configuration)
+        public static void UseSerilogLogging(this IServiceCollection services)
         {
-            // 配置应用日志的 Serilog
-            Log.Logger = new LoggerConfiguration()
-                .Enrich.FromLogContext()
-                .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u4}] {SourceContext:-30} - {Message:lj}{NewLine}{Exception}")
-                .WriteTo.Logger(lc => lc
-                    .Enrich.With<SimplifiedSourceContextEnricher>()
-                    .Filter.ByExcluding(Matching.FromSource("M.E.D.Command")) // 排除EF Core日志
-                    .WriteTo.File(configuration["Logs:App:Path"]!,
-                                  rollingInterval: RollingInterval.Day,
-                                  outputTemplate: configuration["Logs:App:Template"]!,
-                                  restrictedToMinimumLevel: LogEventLevel.Information)
-                )
-                .WriteTo.Logger(lc => lc
-                    .Filter.ByIncludingOnly(e => e.Level == LogEventLevel.Error)
-                    .WriteTo.File(configuration["Logs:Error:Path"]!,
-                              rollingInterval: RollingInterval.Day,
-                              outputTemplate: configuration["Logs:Error:Template"]!,
-                              restrictedToMinimumLevel: LogEventLevel.Warning)
-                )
-                .WriteTo.Logger(lc => lc
-                    .Filter.ByIncludingOnly(Matching.FromSource("Microsoft.EntityFrameworkCore"))
-                    .WriteTo.File(configuration["Logs:EF:Path"]!,
-                                  rollingInterval: RollingInterval.Day,
-                                  outputTemplate: configuration["Logs:EF:Template"]!,
-                                  restrictedToMinimumLevel: LogEventLevel.Information))
-                .CreateLogger();
+            IConfiguration moduleConfiguration = ConfigurationLoader.LoadModuleConfiguration(
+                AppContext.BaseDirectory,
+                ProjectNamespaceUtils.GetSimpleModuleName(typeof(LoggingExtensions))
+            );
 
+            // 配置 Serilog，读取 appsettings.json 里的 Serilog 配置
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(moduleConfiguration)
+                .Enrich.FromLogContext()
+                .Enrich.With<SimplifiedSourceContextEnricher>() // 继续使用自定义 Enricher
+                .CreateLogger();
 
             // 注册 Serilog 到服务容器中
             services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));

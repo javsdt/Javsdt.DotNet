@@ -6,7 +6,12 @@ namespace Javsdt.Infrastructure.Repositorys
 {
     internal class MovieRepository(MovieDbClient client) : IMovieRepository
     {
-        public Movie? GetDetail(string car)
+        /// <summary>
+        /// 查询影片信息
+        /// </summary>
+        /// <param name="car"></param>
+        /// <returns></returns>
+        public List<Movie> GetDetail(string car)
         {
             return client.GetDetail(car).Result;
         }

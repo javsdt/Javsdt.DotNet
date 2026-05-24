@@ -14,7 +14,7 @@ namespace Javsdt.Domain.Repositorys
         /// <summary>
         /// 获取总数
         /// </summary>
-        int GetTotalCount();
+        int CountAll();
 
         /// <summary>
         /// 分页查询

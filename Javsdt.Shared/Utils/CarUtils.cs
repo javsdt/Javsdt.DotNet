@@ -1,5 +1,4 @@
-﻿using HappreeTool.CommonUtils;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace Javsdt.Shared.Utils.Metadata
 {

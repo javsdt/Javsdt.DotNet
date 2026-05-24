@@ -1,25 +1,29 @@
-﻿using Javsdt.Shared.Configuration;
+﻿using Javsdt.Domain.Configuration;
 using Javsdt.Domain.Entitys;
 using Javsdt.Domain.Exceptions;
 using Javsdt.Shared.Constants;
 using Javsdt.Shared.Enums;
 
-namespace Javsdt.Application.Dtos
+namespace Javsdt.Domain.Dtos
 {
     public class AssembleDto
     {
-        public AssembleDto(Jav jav, Movie movie)
+        /// <summary>
+        /// 用于文件命名的jav信息
+        /// </summary>
+        /// <param name="jav"></param>
+        /// <param name="movie"></param>
+        public AssembleDto(Jav jav, Movie movie, StandardSettings settings)
         {
+            int 标题长度限制 = settings.Element.标题长度限制;
             _jav = jav;
 
             Car = movie.Car;
             CarPref = movie.CarPref;
             Title = movie.Title;
-            TitleInFile = Title.Length > SettingsHolder.Standard.Element.TitleLimit ?
-                Title[..SettingsHolder.Standard.Element.TitleLimit] : Title;
+            TitleInFile = Title.Length > 标题长度限制 ? Title[..标题长度限制] : Title;
             ZhTitle = movie.ZhTitle ?? Title;
-            ZhTitleInFile = ZhTitle.Length > SettingsHolder.Standard.Element.TitleLimit ? 
-                ZhTitle[..SettingsHolder.Standard.Element.TitleLimit] : ZhTitle;
+            ZhTitleInFile = ZhTitle.Length > 标题长度限制 ?  ZhTitle[..标题长度限制] : ZhTitle;
             Release = movie.Release?.ToString("yyyy-MM-dd") ?? MediaConstant.DEFAULT_RELEASE;
             Runtime = movie.Runtime;
             Score = movie.Score;
@@ -30,9 +34,9 @@ namespace Javsdt.Application.Dtos
             FirstActor = movie.Actors.Count != 0 ? movie.Actors.First() : $"{Type}演员";
             Actors = movie.Actors.Count != 0 ? string.Join(" ", movie.Actors.Take(7)) : $"{Type}演员";
             Directors = movie.Directors.Count != 0 ? string.Join(" ", movie.Directors.Take(1)) : $"{Type}导演";
-            SubtitleStamp = jav.HasSubtitle ? SettingsHolder.Standard.Element.SubtitleStamp : string.Empty;
-            DivulgedStamp = jav.IsDivulged ? SettingsHolder.Standard.Element.DivulgedStamp : string.Empty;
-            CrackedStamp = jav.IsCracked ? SettingsHolder.Standard.Element.CrackedStamp : string.Empty;
+            SubtitleStamp = jav.HasSubtitle ? settings.Element.是否中字的表现形式 : string.Empty;
+            DivulgedStamp = jav.IsDivulged ? settings.Element.是否流出的表现形式 : string.Empty;
+            CrackedStamp = jav.IsCracked ? settings.Element.是否破解的表现形式 : string.Empty;
         }
 
         private readonly Jav _jav;

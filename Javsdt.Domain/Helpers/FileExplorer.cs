@@ -1,21 +1,29 @@
-﻿using HappreeTool.Documents;
-using Javsdt.Shared.Configuration;
-using Javsdt.Application.Helpers.Base;
+﻿using Javsdt.Domain.Configuration;
 using Javsdt.Domain.Entitys;
 using Javsdt.Domain.Services;
 using Javsdt.Shared.Enums;
 using Javsdt.Shared.Utils.Metadata;
 using Microsoft.Extensions.Logging;
+using HappreeTool.Utils.Documents;
+using Javsdt.Domain.Helpers.Base;
+using Microsoft.Extensions.Options;
 
-namespace Javsdt.Application.Helper
+namespace Javsdt.Domain.Helpers
 {
-    public class FileExplorer(ILogger<FileExplorer> logger, FileAnalyzer fileAnalyzer,
-        JavService _javService, SubtitleService _subtitleService)
+    public class FileExplorer(ILogger<FileExplorer> logger,
+                              FileAnalyzer fileAnalyzer,
+                              JavService _javService,
+                              SubtitleService _subtitleService,
+                              IOptions<StandardSettings> options)
     {
         /// <summary>
         /// 是否每个车牌单独一个文件夹
         /// </summary>
-        private readonly bool needSeparateFolder = SettingsHolder.NeedSeparateFolder;
+        private readonly bool needSeparateFolder = options.Value.归类.JudgeNeedSeparateFolder();
+
+        private readonly List<string> 排除文件夹 = options.Value.Birthmark.排除文件夹们;
+        private readonly List<string> 无视多余的字母数字 = options.Value.Birthmark.无视多余的字母数字;
+        private readonly List<string> 随从文件夹们 = options.Value.Birthmark.随从文件夹们;
 
         /// <summary>
         /// 收集指定目录下的所有jav视频和字幕
@@ -23,15 +31,21 @@ namespace Javsdt.Application.Helper
         /// <param name="rootDir"></param>
         public void CollectJavFilesInRootDir(string rootDir)
         {
-            Stack<string> DirStack = new Stack<string>(); // 使用栈模拟递归的文件夹堆栈
-            DirStack.Push(rootDir); // 将根文件夹入栈
+            // 使用栈模拟递归的文件夹堆栈
+            Stack<string> DirStack = new Stack<string>();
+
+            // 将根文件夹入栈
+            DirStack.Push(rootDir);
+
             while (DirStack.Count > 0)
             {
-                string currentDir = DirStack.Pop(); // 弹出栈顶文件夹
+                // 弹出栈顶文件夹
+                string currentDir = DirStack.Pop();
+
                 logger.LogInformation("【收集jav】检索中...当前目录: {currentDir}", currentDir);
 
                 //当前文件夹在排除文件夹中，则不整理
-                if (IsCurrentFolderExclude(rootDir, currentDir, SettingsHolder.Standard.Birthmark.ExcludeFolders)) continue;
+                if (IsCurrentFolderExclude(rootDir, currentDir, 排除文件夹)) continue;
 
                 //当前文件夹下的文件
                 string[] files = Directory.GetFiles(currentDir);
@@ -141,8 +155,7 @@ namespace Javsdt.Application.Helper
         /// <returns></returns>
         private bool TryCollectCommonCarJav(string filePath, out Jav? javFile)
         {
-            if (CarUtils.TryExtractCommonCar(Path.GetFileNameWithoutExtension(filePath),
-                SettingsHolder.Standard.Birthmark.IgnoredWords, out string? car))
+            if (CarUtils.TryExtractCommonCar(Path.GetFileNameWithoutExtension(filePath), 无视多余的字母数字, out string? car))
             {
                 javFile = Jav.FoundCar(filePath, car!);
                 return true;
@@ -160,8 +173,7 @@ namespace Javsdt.Application.Helper
         /// <returns></returns>
         private bool TryCollectTerribleCarJav(string filePath, out Jav? javFile)
         {
-            if (CarUtils.TryExtractTerribleCar(Path.GetFileNameWithoutExtension(filePath),
-                SettingsHolder.Standard.Birthmark.IgnoredWords, out string? car))
+            if (CarUtils.TryExtractTerribleCar(Path.GetFileNameWithoutExtension(filePath), 无视多余的字母数字, out string? car))
             {
                 javFile = Jav.FoundCar(filePath, car!);
                 return true;
@@ -225,8 +237,7 @@ namespace Javsdt.Application.Helper
 
         private bool TryCollectCommonCarSubtitle(string filePath, out Subtitle? subtitle)
         {
-            if (CarUtils.TryExtractCommonCar(Path.GetFileNameWithoutExtension(filePath),
-                SettingsHolder.Standard.Birthmark.IgnoredWords, out string? car))
+            if (CarUtils.TryExtractCommonCar(Path.GetFileNameWithoutExtension(filePath), 无视多余的字母数字, out string? car))
             {
                 subtitle = new Subtitle(filePath, car!);
                 return true;
@@ -238,8 +249,7 @@ namespace Javsdt.Application.Helper
 
         private bool TryCollectTerribleCarSubtitle(string filePath, out Subtitle? subtitle)
         {
-            if (CarUtils.TryExtractTerribleCar(Path.GetFileNameWithoutExtension(filePath),
-                SettingsHolder.Standard.Birthmark.IgnoredWords, out string? car))
+            if (CarUtils.TryExtractTerribleCar(Path.GetFileNameWithoutExtension(filePath), 无视多余的字母数字, out string? car))
             {
                 subtitle = new Subtitle(filePath, car!);
                 return true;
@@ -258,7 +268,7 @@ namespace Javsdt.Application.Helper
         private void IsCurrentFoldeSeparate(string[] subFolders, List<Jav> javs)
         {
             if (javs.Select(j => j.Car).Distinct().ToList().Count == 1
-                && subFolders.All(folder => SettingsHolder.Standard.Birthmark.AttendantFolders.Contains(folder, StringComparer.OrdinalIgnoreCase)))
+                && subFolders.All(folder => 随从文件夹们.Contains(folder, StringComparer.OrdinalIgnoreCase)))
             {
                 //（1）只有一种车牌，或者没有车牌（都是null），（2）且当前文件夹内没有其他无关文件夹
                 javs.ForEach(jav => jav.IsSeparate = true);

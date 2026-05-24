@@ -1,14 +1,26 @@
-﻿using HappreeTool.CommonUtils;
-using HappreeTool.Documents;
-using Javsdt.Shared.Configuration;
+﻿using Javsdt.Domain.Configuration;
 using Javsdt.Domain.Entitys;
 using Microsoft.Extensions.Logging;
 using System.Text;
+using HappreeTool.Utils.CommonUtils;
+using HappreeTool.Utils.Documents;
+using Microsoft.Extensions.Options;
 
-namespace Javsdt.Application.Helpers.Base
+namespace Javsdt.Domain.Helpers.Base
 {
-    public class FileAnalyzer(ILogger<FileAnalyzer> _logger)
+    public class FileAnalyzer(ILogger<FileAnalyzer> _logger,
+                              IOptions<StandardSettings> options)
     {
+        private readonly List<string> 中字干扰项 = options.Value.Birthmark.中字干扰项;
+        private readonly List<string> 是否中字即文件名包含 = options.Value.Birthmark.是否中字即文件名包含;
+        private readonly List<string> 流出干扰项 = options.Value.Birthmark.流出干扰项;
+        private readonly List<string> 是否流出即文件名包含 = options.Value.Birthmark.是否流出即文件名包含;
+        private readonly List<string> 破解干扰项 = options.Value.Birthmark.破解干扰项;
+        private readonly List<string> 是否破解即文件名包含 = options.Value.Birthmark.是否破解即文件名包含;
+        private readonly string 是否中字的表现形式 = options.Value.Element.是否中字的表现形式;
+        private readonly string 是否流出的表现形式 = options.Value.Element.是否流出的表现形式;
+        private readonly string 是否破解的表现形式 = options.Value.Element.是否破解的表现形式;
+        
         /// <summary>
         /// 检查视频自身显而易见的特征
         /// </summary>
@@ -36,15 +48,14 @@ namespace Javsdt.Application.Helpers.Base
         /// <summary>
         /// 依据文件名和旧nfo判定是否有字幕
         /// </summary>
-        private static void UpdateHasSubtitleByFileNameAndNfo(Jav jav)
+        private void UpdateHasSubtitleByFileNameAndNfo(Jav jav)
         {
             if (jav.HasSubtitle) return;
 
             // 去除 '-CD' 和 '-CARIB'对 '-C'判断中字的影响
-            string nameWithoutExt = MyStringUtils.ReplaceByArray(
-                jav.NameWithoutExt, SettingsHolder.Standard.Birthmark.InterfereSubtitleWords);
+            string nameWithoutExt = StringUtils.ReplaceByArray(jav.NameWithoutExt, 中字干扰项);
             // 如果原文件名包含“-c、-C、中字”这些字符
-            foreach (var word in SettingsHolder.Standard.Birthmark.SubtitleWords)
+            foreach (var word in 是否中字即文件名包含)
             {
                 if (!string.IsNullOrEmpty(word) && nameWithoutExt.Contains(word))
                 {
@@ -68,14 +79,13 @@ namespace Javsdt.Application.Helpers.Base
         /// <summary>
         /// 依据文件名和旧nfo判定是否无码流出
         /// </summary>
-        private static void UpdateIsDivluged(Jav jav)
+        private void UpdateIsDivluged(Jav jav)
         {
             if (jav.IsDivulged) return;
 
-            string nameWithoutExt = MyStringUtils.ReplaceByArray(
-                jav.NameWithoutExt, SettingsHolder.Standard.Birthmark.InterfereDivulgedWords);
+            string nameWithoutExt = StringUtils.ReplaceByArray(jav.NameWithoutExt, 流出干扰项);
             // 如果原文件名包含“无码流出”这些字符
-            foreach (var word in SettingsHolder.Standard.Birthmark.DivulgedWords)
+            foreach (var word in 是否流出即文件名包含)
             {
                 if (!string.IsNullOrEmpty(word) && nameWithoutExt.Contains(word))
                 {
@@ -99,15 +109,14 @@ namespace Javsdt.Application.Helpers.Base
         /// <summary>
         /// 依据文件名和旧nfo判定是否AI破解
         /// </summary>
-        private static void UpdateIsCrackedByFileNameAndNfo(Jav jav)
+        private void UpdateIsCrackedByFileNameAndNfo(Jav jav)
         {
             if (jav.IsCracked) return;
 
 
-            string nameWithoutExt = MyStringUtils.ReplaceByArray(
-                jav.NameWithoutExt, SettingsHolder.Standard.Birthmark.InterfereCrackedWords);
+            string nameWithoutExt = StringUtils.ReplaceByArray(jav.NameWithoutExt, 破解干扰项);
             // 如果原文件名包含“无码流出”这些字符
-            foreach (var word in SettingsHolder.Standard.Birthmark.CrackedWords)
+            foreach (var word in 是否破解即文件名包含)
             {
                 if (!string.IsNullOrEmpty(word) && nameWithoutExt.Contains(word))
                 {
@@ -143,7 +152,7 @@ namespace Javsdt.Application.Helpers.Base
         /// <summary>
         /// 依据3个属性给当前jav一个默认Edition
         /// </summary>
-        public static void UpdateDefaultEdition(Jav jav)
+        public void UpdateDefaultEdition(Jav jav)
         {
             // 初始化一个空的字符串构建器
             var editionBuilder = new StringBuilder();
@@ -151,17 +160,17 @@ namespace Javsdt.Application.Helpers.Base
             // 根据条件附加相应的字符串
             if (jav.HasSubtitle)
             {
-                editionBuilder.Append($" {SettingsHolder.Standard.Element.SubtitleStamp}");
+                editionBuilder.Append($" {是否中字的表现形式}");
             }
 
             if (jav.IsDivulged)
             {
-                editionBuilder.Append($" {SettingsHolder.Standard.Element.DivulgedStamp}");
+                editionBuilder.Append($" {是否流出的表现形式}");
             }
 
             if (jav.IsCracked)
             {
-                editionBuilder.Append($" {SettingsHolder.Standard.Element.CrackedStamp}");
+                editionBuilder.Append($" {是否破解的表现形式}");
             }
 
             // 设置Edition属性为构建好的字符串，并去除首尾的空白字符

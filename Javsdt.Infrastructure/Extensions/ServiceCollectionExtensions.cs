@@ -1,10 +1,10 @@
 ﻿using HappreeTool.Configurations;
+using HappreeTool.Surfers;
 using Javsdt.Application.Interfaces;
 using Javsdt.Domain.Repositorys;
 using Javsdt.Infrastructure.Clients;
 using Javsdt.Infrastructure.Persistence;
 using Javsdt.Infrastructure.Repositorys;
-using Javsdt.Shared.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,26 +13,21 @@ namespace Javsdt.Infrastructure.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+        public static void AddInfrastructure(this IServiceCollection services)
         {
             IConfiguration moduleConfiguration = ConfigurationLoader.LoadModuleConfiguration(
-                AppContext.BaseDirectory, "Infrastructure", configuration);
+                AppContext.BaseDirectory, "Infrastructure");
 
             //数据库
             services.AddDbContext<JavsdtContext>((provider, options) =>
             {
-                options.UseSqlite($"Data Source={configuration.GetConnectionString("AppDb")!}");
+                options.UseSqlite($"Data Source={moduleConfiguration.GetConnectionString("AppDb")!}");
                 //options.UseLoggerFactory(provider.GetRequiredService<ILoggerFactory>()).EnableSensitiveDataLogging();
             });
 
             // httpClient
             services.AddHttpClient();
-            services.AddHttpClient<HttpClientWrapper>(ProcessConstant.MY_SERVICE)
-                .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-                {
-                    // 忽略 SSL 证书错误
-                    ServerCertificateCustomValidationCallback = (message, cert, chain, sslPolicyErrors) => true
-                });
+            services.AddMyApiHttpClient();
             services.AddScoped<HttpClientWrapper>();
             services.AddScoped<MovieDbClient>();
 

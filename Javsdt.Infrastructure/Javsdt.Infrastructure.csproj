@@ -16,6 +16,7 @@
 		<PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.9" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.9" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.9" />
+		<PackageReference Include="Serilog.Settings.Configuration" Version="10.0.1-dev-02346" />
 	</ItemGroup>
 
 	<ItemGroup>

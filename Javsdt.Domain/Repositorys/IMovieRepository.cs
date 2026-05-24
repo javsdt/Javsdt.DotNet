@@ -9,7 +9,7 @@ namespace Javsdt.Domain.Repositorys
         /// </summary>
         /// <param name="carName"></param>
         /// <returns></returns>
-        Movie? GetDetail(string carName);
+        List<Movie> GetDetail(string carName);
 
         /// <summary>
         /// 获取fanart字节流

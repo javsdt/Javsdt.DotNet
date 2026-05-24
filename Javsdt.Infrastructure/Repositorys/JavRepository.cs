@@ -16,7 +16,7 @@ namespace Javsdt.Infrastructure.Repositorys
             _context.DeleteAllData<Subtitle>();
         }
 
-        public int GetTotalCount()
+        public int CountAll()
         {
             return _records.Count();
         }

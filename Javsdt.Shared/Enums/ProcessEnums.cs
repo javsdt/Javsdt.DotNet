@@ -27,7 +27,7 @@
         ChooseDirCombineAlreadyClassify = 1,
 
         /// <summary>
-        /// 所选文件夹加【归类完成文件夹】
+        /// 所选文件夹
         /// </summary>
         OnlyChooseDir = 2,
 

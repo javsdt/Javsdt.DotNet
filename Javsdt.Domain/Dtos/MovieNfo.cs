@@ -1,20 +1,20 @@
-﻿using Javsdt.Shared.Configuration;
-using Javsdt.Application.Helpers.Base;
+﻿using Javsdt.Domain.Configuration;
 using Javsdt.Domain.Entitys;
 using Javsdt.Shared.Constants;
 using System.Xml.Serialization;
+using Javsdt.Domain.Helpers.Base;
 
-namespace Javsdt.Application.Dtos
+namespace Javsdt.Domain.Dtos
 {
     [XmlRoot("movie")]
     public class MovieNfo
     {
         public MovieNfo() { }
 
-        public MovieNfo(Movie movie, AssembleDto dto)
+        public MovieNfo(Movie movie, AssembleDto dto, StandardSettings settings)
         {
             Num = movie.Car;
-            Plot = $"{(SettingsHolder.Standard.Nfo.NeedZhPlot && !string.IsNullOrEmpty(movie.ZhPlot) ? movie.ZhPlot : movie.Plot)}{movie.Review}";
+            Plot = $"{(settings.Nfo.NeedZhPlot && !string.IsNullOrEmpty(movie.ZhPlot) ? movie.ZhPlot : movie.Plot)}{movie.Review}";
             Title = AssembleHelper.AssembleNfoTitleFunction(dto);
             OriginalTitle = $"{movie.Car} {movie.Title}";
             Rating = (movie.Score / 10.0).ToString("0.0");
