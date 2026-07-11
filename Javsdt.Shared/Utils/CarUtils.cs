@@ -10,9 +10,14 @@ namespace Javsdt.Shared.Utils.Metadata
         /// <summary>
         /// T28-123
         /// </summary>
-        /// <returns></returns>
         [GeneratedRegex(@"[^A-Z]?(T28)[-_ ]*(\d\d+)")]
         private static partial Regex T28Regex();
+
+        /// <summary>
+        /// R18-123
+        /// </summary>
+        [GeneratedRegex(@"[^A-Z]?(R18)[-_ ]*(\d\d+)")]
+        private static partial Regex R18Regex();
 
         /// <summary>
         /// 26ID-020
@@ -105,27 +110,11 @@ namespace Javsdt.Shared.Utils.Metadata
         /// <summary>
         /// 有码正则表达式集合
         /// </summary>
-        private static readonly Regex[] youmaRegexArray = [T28Regex(), XXIDXXRegex(), ABC123Regex(), ABC_123Regex()];
-
-
-        /// <summary>
-        /// 找出文件名中的FC2车牌
-        /// </summary>
-        /// <param name="fileName">视频文件基本名</param>
-        /// <param name="car">找到的车牌</param>
-        public static bool TryExtractFc2Car(string fileName, out string? car)
-        {
-            Match carg = Fc2Regex().Match(fileName.ToUpper());
-            if (carg.Success)
-            {
-                car = $"FC2-{carg.Groups[1].Value}";
-                return true;
-            }
-
-            car = null;
-            return false;
-        }
-
+        private static readonly Regex[] youmaRegexArray =
+        [
+            T28Regex(), R18Regex(), XXIDXXRegex(), ABC123Regex(),
+            ABC_123Regex()
+        ];
 
         /// <summary>
         /// 找出文件名中的【正常】车牌
@@ -135,7 +124,8 @@ namespace Javsdt.Shared.Utils.Metadata
         /// <param name="car">找到的车牌，示例: 26ID-020，ABC-123</param>
         public static bool TryExtractCommonCar(string fileName, List<string> replaceWords, out string? car)
         {
-            string cleanedName = Regex.Replace(fileName, string.Join('|', replaceWords), string.Empty, RegexOptions.IgnoreCase);
+            string cleanedName = Regex.Replace(fileName, string.Join('|', replaceWords), string.Empty,
+                RegexOptions.IgnoreCase);
             // 尝试匹配四种不同的车牌格式
             foreach (Regex regex in youmaRegexArray)
             {
@@ -160,7 +150,8 @@ namespace Javsdt.Shared.Utils.Metadata
         /// <remarks>无码就不去多余0了，去了0和不去0，可能是不同结果</remarks>
         public static bool TryExtractTerribleCar(string fileName, List<string> replaceWords, out string? car)
         {
-            string cleanedName = Regex.Replace(fileName, string.Join('|', replaceWords), string.Empty, RegexOptions.IgnoreCase);
+            string cleanedName = Regex.Replace(fileName, string.Join('|', replaceWords), string.Empty,
+                RegexOptions.IgnoreCase);
             Match carg;
 
             // N12345
@@ -188,6 +179,25 @@ namespace Javsdt.Shared.Utils.Metadata
 
 
         /// <summary>
+        /// 找出文件名中的FC2车牌
+        /// </summary>
+        /// <param name="fileName">视频文件基本名</param>
+        /// <param name="car">找到的车牌</param>
+        public static bool TryExtractFc2Car(string fileName, out string? car)
+        {
+            Match carg = Fc2Regex().Match(fileName.ToUpper());
+            if (carg.Success)
+            {
+                car = $"FC2-{carg.Groups[1].Value}";
+                return true;
+            }
+
+            car = null;
+            return false;
+        }
+
+
+        /// <summary>
         /// 去掉太多的0
         /// </summary>
         /// <param name="suf">车尾</param>
@@ -203,7 +213,7 @@ namespace Javsdt.Shared.Utils.Metadata
         /// </summary>
         /// <param name="car">ABC-123</param>
         /// <returns>ABC</returns>
-        public static string ExtractPref(string car)
+        public static string? ExtractPref(string car)
         {
             if (car.Contains('-'))
             {
@@ -212,7 +222,7 @@ namespace Javsdt.Shared.Utils.Metadata
             else
             {
                 Match prefg = PrefixRegex().Match(car);
-                if (!prefg.Success) return string.Empty;
+                if (!prefg.Success) return null;
                 return prefg.Groups[1].Value.ToUpper();
             }
         }
@@ -246,7 +256,7 @@ namespace Javsdt.Shared.Utils.Metadata
         /// <returns>(ABC, 123)</returns>
         public static (string, int) ExtractPrefAndSufNumber(string car)
         {
-            return (ExtractPref(car), ExtractSufNumber(car));
+            return (ExtractPref(car)!, ExtractSufNumber(car));
         }
 
 
@@ -270,7 +280,7 @@ namespace Javsdt.Shared.Utils.Metadata
         /// <returns>ABC-12tk</returns>
         public static string ExtractLessZeroCar(string car)
         {
-            return $"{ExtractPref(car)}-{ExtractSuf(car)}";
+            return $"{ExtractPref(car)}!-{ExtractSuf(car)}";
         }
     }
 }

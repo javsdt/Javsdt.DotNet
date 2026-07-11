@@ -28,12 +28,12 @@
 
 	<ItemGroup>
 		<None Update="appsettings.Infrastructure.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 			<TargetPath>appsettings\%(FileName)%(Extension)</TargetPath>
 		</None>
 		<None Update="appsettings.Infrastructure.Development.json">
 			<DependentUpon>appsettings.Infrastructure.json</DependentUpon>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 			<TargetPath>appsettings\%(FileName)%(Extension)</TargetPath>
 		</None>
 		<None Update="appsettings.Infrastructure.Production.json">
@@ -44,11 +44,11 @@
 	</ItemGroup>
 
 	<!--删除不属于当前环境的配置文件-->
-	<Target Name="RemoveUnusedConfigFiles" AfterTargets="Build">
-		<ItemGroup>
-			<FilesToDelete Include="bin\$(Configuration)\**\appsettings.*.json" Exclude="bin\$(Configuration)\**\appsettings.Infrastructure.$(EnvironmentName).json;bin\$(Configuration)\**\appsettings.Infrastructure.json" />
-		</ItemGroup>
-		<Delete Files="@(FilesToDelete)" />
-	</Target>
+	<!--<Target Name="RemoveUnusedConfigFiles" AfterTargets="Build">-->
+	<!--	<ItemGroup>-->
+	<!--		<FilesToDelete Include="bin\$(Configuration)\**\appsettings.*.json" Exclude="bin\$(Configuration)\**\appsettings.Infrastructure.$(EnvironmentName).json;bin\$(Configuration)\**\appsettings.Infrastructure.json" />-->
+	<!--	</ItemGroup>-->
+	<!--	<Delete Files="@(FilesToDelete)" />-->
+	<!--</Target>-->
 
 </Project>

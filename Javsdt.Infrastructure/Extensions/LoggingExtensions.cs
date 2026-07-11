@@ -2,6 +2,7 @@
 using HappreeTool.Utils.CommonUtils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -25,7 +26,12 @@ namespace Javsdt.Infrastructure.Extensions
                 .CreateLogger();
 
             // 注册 Serilog 到服务容器中
-            services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
+            services.AddSingleton(Log.Logger);
+            services.AddLogging(builder =>
+            {
+                builder.ClearProviders();
+                builder.AddSerilog(Log.Logger);
+            });
         }
     }
 
@@ -36,7 +42,7 @@ namespace Javsdt.Infrastructure.Extensions
             if (logEvent.Properties.TryGetValue("SourceContext", out LogEventPropertyValue? sourceContext))
             {
                 var sourceContextString = sourceContext.ToString().Trim('"');
-                if (sourceContextString.Contains("."))
+                if (sourceContextString.Contains('.'))
                 {
                     var parts = sourceContextString.Split('.');
                     var simpleCategoryName = string.Join(".", parts.Select((part, index) => index < parts.Length - 1 ? part[0].ToString() : part));

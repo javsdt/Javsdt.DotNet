@@ -31,11 +31,10 @@ namespace Javsdt.Infrastructure.Extensions
             services.AddHttpClient();
             services.AddMyApiHttpClient();
             services.AddScoped<HttpClientWrapper>();
-            services.AddScoped<MovieDbClient>();
 
             //仓储服务
             services.AddScoped<IJavRepository, JavRepository>();
-            services.AddScoped<IMovieRepository, MovieRepository>();
+            services.AddScoped<IMovieRepository, MovieDbClient>();
             services.AddScoped<ISubtitleRepository, SubtitleRepository>();
         }
     }

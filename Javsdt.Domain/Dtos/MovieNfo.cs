@@ -13,10 +13,10 @@ namespace Javsdt.Domain.Dtos
 
         public MovieNfo(Movie movie, AssembleDto dto, StandardSettings settings)
         {
-            Num = movie.Car;
+            Num = movie.Code;
             Plot = $"{(settings.Nfo.NeedZhPlot && !string.IsNullOrEmpty(movie.ZhPlot) ? movie.ZhPlot : movie.Plot)}{movie.Review}";
             Title = AssembleHelper.AssembleNfoTitleFunction(dto);
-            OriginalTitle = $"{movie.Car} {movie.Title}";
+            OriginalTitle = $"{movie.Code} {movie.Title}";
             Rating = (movie.Score / 10.0).ToString("0.0");
             CriticRating = movie.Score;
             Year = movie.Release?.Year;
@@ -34,7 +34,7 @@ namespace Javsdt.Domain.Dtos
             List<string> tags = movie.Tags;
             List<string> extraTags = AssembleHelper.CollectPropertiesFunction(dto).ToList();
             Tags = [.. tags, .. extraTags];
-            Actors = movie.Actors.Select(a => new Actor() { Name = a, Type = "Actor" }).ToList();
+            Actors = movie.Actress.Select(a => new Actor() { Name = a, Type = "Actor" }).ToList();
             Directors = movie.Directors.Select(d => d).ToList();
         }
 

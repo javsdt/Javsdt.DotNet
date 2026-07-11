@@ -10,17 +10,18 @@ namespace Javsdt.Domain.Entitys
     /// <remarks>从MovieDb查询得到</remarks>
     public partial class Movie
     {
-        [JsonPropertyName("car")]
-        public string Car { get; set; } = default!;
+        [JsonPropertyName("code")]
+        public string Code { get; set; } = default!;
 
         [JsonPropertyName("type")]
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public JavType Type { get; set; }
 
-        [JsonPropertyName("carPref")]
-        public string CarPref { get; set; } = default!;
+        [JsonPropertyName("codePref")]
+        public string CodePref { get; set; } = default!;
 
-        public string? OriginName { get; set; }
+        [JsonPropertyName("originCode")]
+        public string? OriginCode { get; set; }
 
         [JsonPropertyName("title")]
         public string Title { get; set; } = default!;
@@ -55,6 +56,9 @@ namespace Javsdt.Domain.Entitys
 
         [JsonPropertyName("publishers")]
         public List<string> Publishers { get; set; } = new List<string>();
+
+        [JsonPropertyName("actress")]
+        public List<string> Actress { get; set; } = new List<string>();
 
         [JsonPropertyName("actors")]
         public List<string> Actors { get; set; } = new List<string>();

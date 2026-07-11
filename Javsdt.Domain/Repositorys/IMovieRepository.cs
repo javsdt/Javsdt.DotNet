@@ -9,7 +9,7 @@ namespace Javsdt.Domain.Repositorys
         /// </summary>
         /// <param name="carName"></param>
         /// <returns></returns>
-        List<Movie> GetDetail(string carName);
+        Task<List<Movie>> GetDetail(string carName);
 
         /// <summary>
         /// 获取fanart字节流
@@ -24,5 +24,12 @@ namespace Javsdt.Domain.Repositorys
         /// <param name="car"></param>
         /// <returns></returns>
         Task<byte[]> GetPosterBytes(string car);
+
+        /// <summary>
+        /// 获取车牌前缀信息
+        /// </summary>
+        /// <param name="codePref"></param>
+        /// <returns></returns>
+        Task<CodePref?> GetCodePref(string codePref);
     }
 }

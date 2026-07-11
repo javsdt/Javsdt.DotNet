@@ -120,7 +120,10 @@ namespace Javsdt.Domain.Entitys
         /// <para>例如ABC-123 - ㊥ 4K.mp4，版本是【㊥ 4K】</para>
         /// </summary>
         [NotMapped]
-        public string EditionCDn => $"{(Edition is null ? string.Empty : $" - {Edition}")}{(CD == 0 ? string.Empty : $"-cd{CD}")}";
+        public string EditionCDn =>
+            $"{(Edition is null ? string.Empty : $" - {Edition}")}{(CD == 0 ? string.Empty : $"-cd{CD}")}";
 
+
+        public override string ToString() => $"车牌: {Car} 路径: {NameWithExt}";
     }
 }

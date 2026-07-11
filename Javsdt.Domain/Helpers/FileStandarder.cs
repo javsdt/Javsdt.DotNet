@@ -46,7 +46,7 @@ namespace Javsdt.Domain.Helpers
             else if (归类方式 == ClassifyOperationType.ChooseDirCombineAlreadyClassify)
             {
                 classifyRootDir = Path.Combine(choosedDir, ProcessConstant.ALREADY_CLASSIFY_DIR);
-                _logger.LogInformation("【检查归类根目录】end_用户希望归类在【所选文件夹/归类完成】: {classifyRootDir}】", classifyRootDir);
+                _logger.LogInformation("【检查归类根目录】end_用户希望归类在【所选文件夹/归类完成: {classifyRootDir}】", classifyRootDir);
             }
             else if (归类方式 == ClassifyOperationType.OnlyChooseDir)
             {
@@ -301,13 +301,13 @@ namespace Javsdt.Domain.Helpers
         /// 8下载fanart
         /// </summary>
         /// <param name="jav"></param>
-        public void DownloadFanart(Jav jav, AssembleDto dto)
+        public async Task DownloadFanart(Jav jav, AssembleDto dto)
         {
             _logger.LogInformation("【下载fanart】begin");
 
             string aseembleFanart = AssembleHelper.AssembleFanartFunction(dto);
             string fanartPath = Path.Combine(jav.Dir, aseembleFanart);
-            _movieService.DownloadFanart(jav.Car!, fanartPath);
+            await _movieService.DownloadFanart(jav.Car!, fanartPath);
 
             _logger.LogInformation("【下载fanart】end");
         }
@@ -316,13 +316,13 @@ namespace Javsdt.Domain.Helpers
         /// 8下载poster
         /// </summary>
         /// <param name="jav"></param>
-        public void DownloadPoster(Jav jav, AssembleDto dto)
+        public async Task DownloadPoster(Jav jav, AssembleDto dto)
         {
             _logger.LogInformation("【下载poster】begin");
 
             string aseemblePoster = AssembleHelper.AssemblePosterFunction(dto);
             string posterPath = Path.Combine(jav.Dir, aseemblePoster);
-            _movieService.DownloadPoster(jav.Car!, posterPath);
+            await _movieService.DownloadPoster(jav.Car!, posterPath);
 
             _logger.LogInformation("【下载poster】end");
         }

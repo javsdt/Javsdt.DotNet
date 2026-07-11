@@ -1,6 +1,7 @@
 ﻿using Javsdt.Shared.Converters;
 using Javsdt.Shared.Enums;
 using System.Text.Json.Serialization;
+using Javsdt.Domain.Dtos;
 
 namespace Javsdt.Domain.Configuration
 {
@@ -144,8 +145,8 @@ namespace Javsdt.Domain.Configuration
         /// <returns></returns>
         public bool JudgeNeedSeparateFolder()
         {
-            int index = 归类的标准.LastIndexOf("\\");
-            return 归类的标准[(index + 1)..].Contains("Car");
+            List<string> 父文件夹命名公式 = 归类的标准[(归类的标准.LastIndexOf("\\") + 1)..];
+            return 父文件夹命名公式.Contains(nameof(AssembleDto.车牌));
         }
     }
 

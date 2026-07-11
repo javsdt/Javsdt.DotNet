@@ -4,28 +4,32 @@ using Javsdt.Infrastructure.Configurations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
+using HappreeTool.ApiAbouts.Formats;
+using Javsdt.Domain.Repositorys;
 
 namespace Javsdt.Infrastructure.Clients
 {
     public class MovieDbClient(ILogger<MovieDbClient> logger,
                                IHttpClientFactory httpClientFactory,
-                               IOptions<AvpiSettings> options)
+                               IOptions<AvpiSettings> options): IMovieRepository
     {
         private readonly string _baseUrl = options.Value.BaseUrl.TrimEnd('/');
 
-        private string BuildMovieDetailUrl(string movieId) => $"{_baseUrl}/movies/{movieId}";
+        private string BuildMovieDetailUrl(string movieId) => $"{_baseUrl}/movie/{movieId}";
 
-        private string BuildMoviePosterUrl(string movieId) => $"{_baseUrl}/movies/{movieId}/poster";
+        private string BuildMoviePosterUrl(string movieId) => $"{_baseUrl}/movie/{movieId}/poster";
 
-        private string BuildMovieFanartUrl(string movieId) => $"{_baseUrl}/movies/{movieId}/fanart";
+        private string BuildMovieFanartUrl(string movieId) => $"{_baseUrl}/movie/{movieId}/fanart";
 
-        private string BuildMovieSearchUrl(string code) => $"{_baseUrl}/movies?code={Uri.EscapeDataString(code)}";
+        private string BuildMovieSearchUrl(string code) => $"{_baseUrl}/movie?code={Uri.EscapeDataString(code)}";
+
+        private string BuildCodePrefUrl(string codePref) => $"{_baseUrl}/codePref/{Uri.EscapeDataString(codePref)}";
 
         /// <summary>
         /// 根据code查影片
         /// </summary>
         /// <param name="code"></param>
-        /// <returns>List<Movie>，查不到则为空list</returns>
+        /// <returns>查不到则为空list</returns>
         public async Task<List<Movie>> GetDetail(string code)
         {
             string getMovieByCodeUrl = BuildMovieSearchUrl(code);
@@ -33,8 +37,11 @@ namespace Javsdt.Infrastructure.Clients
             response.EnsureSuccessStatusCode();
             string jsonResponse = await response.Content.ReadAsStringAsync();
 
-            var message = JsonSerializer.Deserialize<ApiResponseMessage<List<Movie>>>(jsonResponse)!;
-            return message.Data!;
+            var message = JsonSerializer.Deserialize<ApiResponseMessage<List<Movie>>>(
+                jsonResponse, JsonApiFormat.CASE_INSENSITIVE_OPTIONS)!;
+
+            List<Movie>? movies = message.Data;
+            return movies == null ? [] : movies.ToList();
         }
 
         /// <summary>
@@ -42,16 +49,12 @@ namespace Javsdt.Infrastructure.Clients
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        internal async Task<byte[]> GetFanartBytes(string id)
+        public async Task<byte[]> GetFanartBytes(string id)
         {
             string url = BuildMovieFanartUrl(id);
             logger.LogInformation("准备从MovieDb服务【{url}】获取fanart的文件资源bytes", url);
 
             HttpResponseMessage response = await httpClientFactory.CreateClient().GetAsync(url);
-            //if (response.StatusCode == HttpStatusCode.NotFound)
-            //{
-            //    return null;
-            //}
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadAsByteArrayAsync();
@@ -62,7 +65,7 @@ namespace Javsdt.Infrastructure.Clients
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        internal async Task<byte[]> GetPosterBytes(string id)
+        public async Task<byte[]> GetPosterBytes(string id)
         {
             string url = BuildMoviePosterUrl(id);
             logger.LogInformation("准备从MovieDb服务【{url}】获取poster的文件资源bytes", url);
@@ -71,6 +74,19 @@ namespace Javsdt.Infrastructure.Clients
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadAsByteArrayAsync();
+        }
+
+        public async Task<CodePref?> GetCodePref(string codePrefName)
+        {
+            string getUrl = BuildCodePrefUrl(codePrefName);
+            HttpResponseMessage response = await httpClientFactory.CreateClient().GetAsync(getUrl);
+            response.EnsureSuccessStatusCode();
+            string jsonResponse = await response.Content.ReadAsStringAsync();
+
+            var message = JsonSerializer.Deserialize<ApiResponseMessage<CodePref?>>(
+                jsonResponse, JsonApiFormat.CASE_INSENSITIVE_OPTIONS)!;
+
+            return message.Data;
         }
     }
 }

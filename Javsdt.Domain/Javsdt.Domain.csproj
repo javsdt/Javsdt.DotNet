@@ -13,12 +13,12 @@
 
 	<ItemGroup>
 		<None Update="appsettings.Domain.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 			<TargetPath>appsettings\%(FileName)%(Extension)</TargetPath>
 		</None>
 		<None Update="appsettings.Domain.Development.json">
 			<DependentUpon>appsettings.Domain.json</DependentUpon>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 			<TargetPath>appsettings\%(FileName)%(Extension)</TargetPath>
 		</None>
 		<None Update="appsettings.Domain.Production.json">

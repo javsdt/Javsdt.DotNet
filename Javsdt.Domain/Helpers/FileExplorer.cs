@@ -14,6 +14,7 @@ namespace Javsdt.Domain.Helpers
                               FileAnalyzer fileAnalyzer,
                               JavService _javService,
                               SubtitleService _subtitleService,
+                              MovieService _movieService,
                               IOptions<StandardSettings> options)
     {
         /// <summary>
@@ -30,7 +31,7 @@ namespace Javsdt.Domain.Helpers
         /// 收集指定目录下的所有jav视频和字幕
         /// </summary>
         /// <param name="rootDir"></param>
-        public void CollectJavFilesInRootDir(string rootDir)
+        public async Task CollectJavFilesInRootDir(string rootDir)
         {
             // 使用栈模拟递归的文件夹堆栈
             Stack<string> DirStack = new Stack<string>();
@@ -53,7 +54,7 @@ namespace Javsdt.Domain.Helpers
                 string[] subDirs = Directory.GetDirectories(currentDir);
 
                 //1 收集【视频】
-                List<Jav> javs = CollectJavs(files.Where(one=>VideoUtils.IsMatchExtension(one, _扫描视频文件类型)));
+                List<Jav> javs = await CollectJavs(files.Where(one => VideoUtils.IsMatchExtension(one, _扫描视频文件类型)));
                 logger.LogInformation("【收集jav】检索初步完成...当前目录共有jav【{count}】个", javs.Count);
 
                 //2 初步检查当前文件夹是否独立文件夹
@@ -108,16 +109,47 @@ namespace Javsdt.Domain.Helpers
         /// </summary>
         /// <param name="videoPaths"></param>
         /// <returns></returns>
-        private List<Jav> CollectJavs(IEnumerable<string> videoPaths)
+        private async Task<List<Jav>> CollectJavs(IEnumerable<string> videoPaths)
         {
-            List<Jav> javs = [];  //当前一层目录下的所有JavFile
+            List<Jav> javs = []; //当前一层目录下的所有JavFile
+            Dictionary<string, CodePref> codePrefs = new();
+
             foreach (string filePath in videoPaths)
             {
+                // 按照Fc2 => 有码/素人/ => 无码的顺序，若找到车牌则jav被赋值
                 if (TryCollectFc2Jav(filePath, out Jav? jav) ||
                     TryCollectCommonCarJav(filePath, out jav) ||
                     TryCollectTerribleCarJav(filePath, out jav))
                 {
-                    // 按照Fc2 => 有码/素人/ => 无码的顺序，若找到车牌则jav被赋值
+                    logger.LogInformation("收集到【{jav}】", jav);
+
+                    string? codePref = CarUtils.ExtractPref(jav!.Car!);
+                    if (codePref == null)
+                    {
+                        logger.LogWarning("查询【车牌: {code}】无法分离出车头", codePref);
+                        continue;
+                    }
+
+                    logger.LogInformation("查询【车头: {codePref}】的信息", codePref);
+                    if (!codePrefs.TryGetValue(codePref, out CodePref? pref))
+                    {
+                        pref = await _movieService.GetCodePref(codePref);
+                        if (pref == null)
+                        {
+                            logger.LogError("AVPI还不存在当前车头【{codePref}】！", codePref);
+                            continue;
+                        }
+
+                        codePrefs.Add(codePref, pref);
+                    }
+
+                    // 如果是无码，不要丢弃任何字母数字
+                    if (pref is { Type: JavType.无码 })
+                    {
+                        CarUtils.TryExtractTerribleCar(Path.GetFileNameWithoutExtension(filePath).ToUpper(),
+                            无视多余的字母数字, out string? 无码车牌);
+                        jav.Car = 无码车牌!;
+                    }
                 }
                 else
                 {
@@ -139,7 +171,8 @@ namespace Javsdt.Domain.Helpers
         /// <returns></returns>
         private static bool TryCollectFc2Jav(string filePath, out Jav? javFile)
         {
-            if (CarUtils.TryExtractFc2Car(Path.GetFileNameWithoutExtension(filePath), out string? car))
+            if (CarUtils.TryExtractFc2Car(Path.GetFileNameWithoutExtension(filePath).ToUpper(),
+                    out string? car))
             {
                 javFile = Jav.FoundCar(filePath, car!);
                 return true;
@@ -157,7 +190,8 @@ namespace Javsdt.Domain.Helpers
         /// <returns></returns>
         private bool TryCollectCommonCarJav(string filePath, out Jav? javFile)
         {
-            if (CarUtils.TryExtractCommonCar(Path.GetFileNameWithoutExtension(filePath), 无视多余的字母数字, out string? car))
+            if (CarUtils.TryExtractCommonCar(Path.GetFileNameWithoutExtension(filePath).ToUpper(),
+                    无视多余的字母数字, out string? car))
             {
                 javFile = Jav.FoundCar(filePath, car!);
                 return true;
@@ -175,7 +209,8 @@ namespace Javsdt.Domain.Helpers
         /// <returns></returns>
         private bool TryCollectTerribleCarJav(string filePath, out Jav? javFile)
         {
-            if (CarUtils.TryExtractTerribleCar(Path.GetFileNameWithoutExtension(filePath), 无视多余的字母数字, out string? car))
+            if (CarUtils.TryExtractTerribleCar(Path.GetFileNameWithoutExtension(filePath).ToUpper(),
+                    无视多余的字母数字, out string? car))
             {
                 javFile = Jav.FoundCar(filePath, car!);
                 return true;
@@ -194,7 +229,7 @@ namespace Javsdt.Domain.Helpers
         /// <remarks>一个字幕文件的车牌有唯一的jav与之对应，则给这个jav.Subtitles收集这个字幕，如果有多个jav，则收集它。</remarks>
         private List<Subtitle> CollectSubtitles(IEnumerable<string> subtitlePaths, List<Jav> javs)
         {
-            List<Subtitle> notBelongedSubtitles = [];  //当前一层目录下的所有JavFile
+            List<Subtitle> notBelongedSubtitles = []; //当前一层目录下的所有JavFile
             foreach (string filePath in subtitlePaths)
             {
                 if (TryCollectFc2Subtitle(filePath, out Subtitle? subtitle) ||
@@ -239,7 +274,8 @@ namespace Javsdt.Domain.Helpers
 
         private bool TryCollectCommonCarSubtitle(string filePath, out Subtitle? subtitle)
         {
-            if (CarUtils.TryExtractCommonCar(Path.GetFileNameWithoutExtension(filePath), 无视多余的字母数字, out string? car))
+            if (CarUtils.TryExtractCommonCar(Path.GetFileNameWithoutExtension(filePath),
+                    无视多余的字母数字, out string? car))
             {
                 subtitle = new Subtitle(filePath, car!);
                 return true;
@@ -251,7 +287,8 @@ namespace Javsdt.Domain.Helpers
 
         private bool TryCollectTerribleCarSubtitle(string filePath, out Subtitle? subtitle)
         {
-            if (CarUtils.TryExtractTerribleCar(Path.GetFileNameWithoutExtension(filePath), 无视多余的字母数字, out string? car))
+            if (CarUtils.TryExtractTerribleCar(Path.GetFileNameWithoutExtension(filePath),
+                    无视多余的字母数字, out string? car))
             {
                 subtitle = new Subtitle(filePath, car!);
                 return true;
@@ -285,33 +322,33 @@ namespace Javsdt.Domain.Helpers
         {
             // 先按车牌和名称排序，后续按这个顺序入数据库
             javs = javs.OrderBy(j => j.Car)
-                       .ThenBy(j => j.NameWithoutExt)
-                       .ToList();
+                .ThenBy(j => j.NameWithoutExt)
+                .ToList();
 
             // 先按车牌分组，再按版本二次分组
             var groupedJavs = javs.GroupBy(j => j.Car)
-                                  //按CarName分组
-                                  .Select(carGroup => new
-                                  {
-                                      CarName = carGroup.Key,
-                                      Editions = carGroup.GroupBy(j => j.Edition)
-                                                         //按Edition分组
-                                                         .Select(editionGroup => new
-                                                         {
-                                                             Edition = editionGroup.Key,
-                                                             CDs = editionGroup.ToList()
-                                                         }).ToList()
-                                  });
+                //按CarName分组
+                .Select(carGroup => new
+                {
+                    CarName = carGroup.Key,
+                    Editions = carGroup.GroupBy(j => j.Edition)
+                        //按Edition分组
+                        .Select(editionGroup => new
+                        {
+                            Edition = editionGroup.Key,
+                            CDs = editionGroup.ToList()
+                        }).ToList()
+                });
 
             // 给分组后的javs对象赋值
             foreach (var carGroup in groupedJavs)
             {
-                int familyNo = 1;  //当前jav在同一车牌视频中的序号
-                int familyCount = carGroup.Editions.Sum(editionGroup => editionGroup.CDs.Count);  //同一车牌的视频总数
+                int familyNo = 1; //当前jav在同一车牌视频中的序号
+                int familyCount = carGroup.Editions.Sum(editionGroup => editionGroup.CDs.Count); //同一车牌的视频总数
                 foreach (var editionGroup in carGroup.Editions)
                 {
                     int cd = 1; //同一车牌同一版本下的第几个CD
-                    int groupCount = editionGroup.CDs.Count;  //同一车牌同一版本下的CD总数
+                    int groupCount = editionGroup.CDs.Count; //同一车牌同一版本下的CD总数
                     foreach (var jav in editionGroup.CDs)
                     {
                         jav.FamilyNo = familyNo++;
@@ -326,6 +363,5 @@ namespace Javsdt.Domain.Helpers
                 }
             }
         }
-
     }
 }
